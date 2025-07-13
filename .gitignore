@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Mac system files
+.DS_Store
+
+# VS Code settings
+.vscode/
+
+# Environment files
+.env
+
+
+# Python virtual environments
+venv/
+.venv/
+.env/
+env/
+*.egg-info/
+
+
+/data/
+# Ignore the folder with ESM1b raw data (3.79 GB)
+data/raw/ALL_hum_isoforms_ESM1b_LLR/
+
+# Ignore the specific .tsv file (6.28 GB)
+data/raw/AlphaMissense_aa_substitutions.tsv
+
+
+/results/
+
+*.log

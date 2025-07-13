@@ -1,0 +1,31 @@
+# Core scientific stack
+numpy==2.2.6
+pandas==2.2.3
+matplotlib==3.10.3
+seaborn==0.13.2
+scikit-learn==1.6.1
+scipy==1.15.3
+statsmodels==0.14.4
+tqdm ==4.65.0
+
+# Bioinformatics
+biopython==1.85
+
+# Visualization
+plotly==6.1.0
+
+# Visualization with R
+rpy2==3.5.6
+
+# Jupyter support
+jupyter==1.1.1
+notebook==7.4.2
+jupyterlab==4.4.2
+ipykernel==6.29.5
+
+# YAML support
+PyYAML==6.0.2
+
+joblib==1.5.0          # model saving/loading
+requests==2.32.3       # web access (e.g., NCBI, APIs)
+beautifulsoup4==4.13.4 # parsing HTML or scraping
