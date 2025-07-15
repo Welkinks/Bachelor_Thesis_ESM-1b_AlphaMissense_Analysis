@@ -43,6 +43,8 @@ N_OUT_RANK_PATH_CSV = "_statistics.csv"
 MULTISPAN_PATH = PROCESSED_DIR / "Multispan_Statistics_Rank"
 MULTISPAN_PATH_CSV = "_statistics.csv"
 
+N_OUT_PROTEIN_ID = PROCESSED_DIR / "Human_N_Out_Proteome.csv"
+
 # === Expose paths via function ===
 def get_paths():
     return {
@@ -60,7 +62,8 @@ def get_paths():
         "am_csv_suffix": AM_PATH_CSV,
         "diff_csv_suffix": DIFF_PATH_CSV,
         "n_out_rank_csv_suffix": N_OUT_RANK_PATH_CSV,
-        "multispan_rank_csv_suffix": MULTISPAN_PATH_CSV
+        "multispan_rank_csv_suffix": MULTISPAN_PATH_CSV,
+        "n_out_id": N_OUT_PROTEIN_ID
     }
 
 

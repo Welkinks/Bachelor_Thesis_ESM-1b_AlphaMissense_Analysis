@@ -12,6 +12,7 @@ def exclude_isoforms(raw, output):
         raw (str or Path): Directory containing the original CSV files.
         output (str or Path): Target directory where non-isoform CSVs will be copied.
     """
+    
     os.makedirs(output, exist_ok=True)
 
     # Get all CSV files from source directory
