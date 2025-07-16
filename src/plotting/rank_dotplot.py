@@ -12,16 +12,36 @@ import math
 
 # A helper function for plot_rank_dotplot()
 def round_up_nice(x):
-    """Round up to a 'nice' clean number (1, 2, 5, 10 × 10^n) for histogram x-ticks"""
+    """Round up to a clean, compact tick value near x."""
     if x == 0:
         return 0
     exponent = math.floor(math.log10(x))
     fraction = x / 10**exponent
-    nice = 1 if fraction <= 1 else 2 if fraction <= 2 else 5 if fraction <= 5 else 10
 
-    return int(nice * 10**exponent)
+    # More fine-grained thresholds
+    if fraction <= 1.5:
+        nice = 1.5
+    elif fraction <= 2:
+        nice = 2
+    elif fraction <= 3:
+        nice = 3
+    elif fraction <= 5:
+        nice = 5
+    else:
+        nice = 10
+
+    return nice * 10**exponent
 
 
+# Find optimal number of bins for histogram
+def optimal_bin_count(n):
+    """Adaptive bin count: fewer bins for massive data"""
+    if n > 2_000_000:
+        return 60 # hard cap for huge datasets
+    elif n > 500_000:
+        return 30
+    else:
+        return max(10, math.ceil(2 * n ** (1/3)))  # Rice Rule
 
 
 
@@ -163,7 +183,7 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
 
     # Create figure with 2 subplots: scatter + histogram (right side)
     fig = plt.figure(figsize=(6.8, 6.8), dpi=300)
-    gs = fig.add_gridspec(nrows=2, ncols=2, width_ratios=[4, 1], height_ratios=[1, 4], wspace=0.05, hspace=0.05)
+    gs = fig.add_gridspec(nrows=2, ncols=2, width_ratios=[6, 1], height_ratios=[1, 6], wspace=0.05, hspace=0.05)
 
     # Scatter plot on the left
     ax_scatter = fig.add_subplot(gs[1,0])
@@ -187,14 +207,14 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
 
     # Add text to the axes
     ax_text.text(
-        0.0, 0.95, title_text,
+        0.0, 1, title_text,
         fontsize=6, fontweight='bold', ha='left', va='top'
     )
     ax_text.text(
-        0.0, 0.5, subtitle_text,
+        0.0, 0.45, subtitle_text,
         fontsize=6, ha='left', va='top'
     )
-    ax_text.text(0.0, 0.15, "Rank\nTransformation", fontsize=6., fontweight='bold', ha='left', va='top', )
+    ax_text.text(0.0, 0.2, "Rank\nTransformation", fontsize=6., fontweight='bold', ha='left', va='top', )
  
     
     ax_scatter.grid(True, linestyle='--', alpha=0.2)
@@ -204,10 +224,10 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
     
     if model == "ESM":
         ax_scatter.axhline(y=-7.5, color='red', linestyle='--', linewidth=1, xmin=-0.1, xmax=0.48271)
-        ax_scatter.axvline(x=0.48271, color='red', linestyle='--', linewidth=1, ymin=0.0, ymax=0.488)
+        ax_scatter.axvline(x=0.48271, color='red', linestyle='--', linewidth=1, ymin=0.0, ymax=0.480)
         ax_scatter.text(-0.0425, -8.2, 'Pathogenicity Threshold ↑', color='red', fontsize=6, va='center')
         ax_scatter.text(-0.130, -7.5, '-7.5', color='red', fontsize=7, va='center')
-        ax_scatter.text(0.45, 13.25, '0.483', color='red', fontsize=7, va='center')
+        ax_scatter.text(0.45, 16.5, '0.483', color='red', fontsize=7, va='center')
         ax_scatter.text(0.49, 4, 'Rank Pathogenicity Threshold ↑', color='red', fontsize=6, va='center', rotation = 270)
 
     elif model == "AlphaMissense":
@@ -221,26 +241,23 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
 
     # Flip y-axis: more negative = more pathogenic → should be higher
     if model == "ESM": ax_scatter.invert_yaxis()
-
-    # Find optimal number of bins for histogram
-    def optimal_bin_count(n):
-        """Return number of bins based on Rice Rule."""
-        return max(10, math.ceil(2 * n ** (1/3)))  # Minimum of 10 bins for readability
-    
+        
     n_points = len(raw_scores)/5
     num_bins = optimal_bin_count(n_points)
 
     # Histogram on the right — aligned with y-axis of scatter
     ax_hist = fig.add_subplot(gs[1,1], sharey=ax_scatter)
     hist_values, bins, _ = ax_hist.hist(
-        plot_df['Raw Score'], bins = num_bins, orientation='horizontal',
+        plot_df['Raw Score'], bins = 200, orientation='horizontal',
         color=scatter_color, alpha=0.6, edgecolor='black', linewidth=0.3)
 
     # Only show ticks at 0 and max
+    # After histogram is created:
     max_freq = max(hist_values)
-    nice_max = round_up_nice(max_freq)
-    ax_hist.set_xticks([0, round(nice_max)])
-    ax_hist.set_xticklabels(['0', rf'$ {int(nice_max / 10 ** int(math.log10(nice_max)))} \times 10^{{{int(math.log10(nice_max))}}} $'], fontsize=8)
+    #nice_max = round_up_nice(max_freq)
+
+    ax_hist.set_xticks([0, round(max_freq)])
+    ax_hist.set_xticklabels(['0', rf'$ {int(max_freq / 10 ** int(math.log10(max_freq)))} \times 10^{{{int(math.log10(max_freq))}}} $'], fontsize=8)
 
     # Clean up histogram axis
     ax_hist.tick_params(axis='y', labelleft=False)  # Hide y-axis ticks on histogram
@@ -252,14 +269,14 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
      # Histogram on the top — aligned with x-axis of scatter
     ax_hist = fig.add_subplot(gs[0,0], sharex=ax_scatter)
     hist_values, bins, _ = ax_hist.hist(
-        plot_df['Rank'], bins = num_bins, orientation='vertical',
+        plot_df['Rank'], bins = 200, orientation='vertical',
         color=scatter_color, alpha=0.6, edgecolor='black', linewidth=0.3)
 
     # Only show ticks at 0 and max
     #max_freq = max(hist_values)
     #nice_max = round_up_nice(max_freq)
-    ax_hist.set_yticks([0, round(nice_max)])
-    ax_hist.set_yticklabels(['0', rf'$ {int(nice_max / 10 ** int(math.log10(nice_max)))} \times 10^{{{int(math.log10(nice_max))}}} $'], fontsize=8)
+    ax_hist.set_yticks([0, round(max_freq)])
+    ax_hist.set_yticklabels(['0', rf'$ {int(max_freq / 10 ** int(math.log10(max_freq)))} \times 10^{{{int(math.log10(max_freq))}}} $'], fontsize=8)
 
     # Clean up histogram axis
     ax_hist.tick_params(axis='x', labelbottom=False)  # Hide x-axis ticks on histogram
