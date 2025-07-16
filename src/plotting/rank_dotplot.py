@@ -158,42 +158,69 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
 
     # Define colors for AM and ESM models
     scatter_color = "#1b9e77" if model == "ESM" else '#dc153c'  # Colorblind-safe green = # ESM color '#29ab88'
+    # Slightly darker version of the main color
+    
 
     # Create figure with 2 subplots: scatter + histogram (right side)
-    fig = plt.figure(figsize=(6.8, 4.5), dpi=300)
-    gs = fig.add_gridspec(nrows=1, ncols=2, width_ratios=[4.5, 1.2], wspace=0.05)
+    fig = plt.figure(figsize=(6.8, 6.8), dpi=300)
+    gs = fig.add_gridspec(nrows=2, ncols=2, width_ratios=[4, 1], height_ratios=[1, 4], wspace=0.05, hspace=0.05)
 
     # Scatter plot on the left
-    ax_scatter = fig.add_subplot(gs[0])
+    ax_scatter = fig.add_subplot(gs[1,0])
     scatter = ax_scatter.scatter(
         plot_df['Rank'], plot_df['Raw Score'],
-        alpha=alpha, s=18, color=scatter_color, edgecolor='black', linewidth=0.15)
+        alpha=alpha, s=18, color=scatter_color)
     
     ax_scatter.set_xlabel('Rank Score', fontsize=8)
     ax_scatter.set_ylabel('Raw LLR Score' if model == "ESM" else "Raw Score", fontsize=8)
-    ax_scatter.text(
-        0, 1.075, 'ESM1b: Rank Dotplot and Histogram of Pathogenicity Scores' if model == "ESM" 
-        else 'AlphaMissense: Rank Dotplot and Histogram of Pathogenicity Scores',
-        transform=ax_scatter.transAxes, fontsize=11, fontweight='bold', ha='left')
-    
-    ax_scatter.text(
-        0, 1.025, f'Protein Sample Size: {sample_size:,} | Variants: {len(raw_scores):,}',
-        transform=ax_scatter.transAxes, fontsize=10, ha='left')
+
+    ax_text = fig.add_subplot(gs[0, 1])
+    ax_text.axis('off')  # Hide all axes lines, ticks, etc.
+
+    # Compose text
+    title_text = (
+        'ESM1b: Rank Dotplot\nand Histogram of\nPathogenicity Scores'
+        if model == "ESM"
+        else 'AlphaMissense:\nRank Dotplot\nand Histogram of\nPathogenicity Scores'
+    )
+    subtitle_text = f'Protein Sample Size: {sample_size:,}\nVariants: {len(raw_scores):,}'
+
+    # Add text to the axes
+    ax_text.text(
+        0.0, 0.95, title_text,
+        fontsize=6, fontweight='bold', ha='left', va='top'
+    )
+    ax_text.text(
+        0.0, 0.5, subtitle_text,
+        fontsize=6, ha='left', va='top'
+    )
+    ax_text.text(0.0, 0.15, "Rank\nTransformation", fontsize=6., fontweight='bold', ha='left', va='top', )
+ 
     
     ax_scatter.grid(True, linestyle='--', alpha=0.2)
     ax_scatter.tick_params(axis='both', labelsize=8)
     
-    # Flip y-axis: more negative = more pathogenic → should be higher
-    if model == "ESM": ax_scatter.invert_yaxis()
+  
     
     if model == "ESM":
-        ax_scatter.axhline(y=-7.5, color='red', linestyle='--', linewidth=1)
-        ax_scatter.text(-0.0425, -8.2, 'Pathogenicity Threshold ↑', color='red', fontsize=7, va='center')
+        ax_scatter.axhline(y=-7.5, color='red', linestyle='--', linewidth=1, xmin=-0.1, xmax=0.48271)
+        ax_scatter.axvline(x=0.48271, color='red', linestyle='--', linewidth=1, ymin=0.0, ymax=0.488)
+        ax_scatter.text(-0.0425, -8.2, 'Pathogenicity Threshold ↑', color='red', fontsize=6, va='center')
         ax_scatter.text(-0.130, -7.5, '-7.5', color='red', fontsize=7, va='center')
+        ax_scatter.text(0.45, 13.25, '0.483', color='red', fontsize=7, va='center')
+        ax_scatter.text(0.49, 4, 'Rank Pathogenicity Threshold ↑', color='red', fontsize=6, va='center', rotation = 270)
+
     elif model == "AlphaMissense":
-        ax_scatter.axhline(y=0.564, color='red', linestyle='--', linewidth=1)
-        ax_scatter.text(-0.0425, 0.585 , 'Pathogenicity Threshold ↑', color='red', fontsize=7, va='center')
+        ax_scatter.axhline(y=0.564, color='red', linestyle='--', linewidth=1, xmin=-0.1, xmax=0.563)
+        ax_scatter.axvline(x=0.56548, color='red', linestyle='--', linewidth=1, ymin=0.0, ymax=0.55)
+        ax_scatter.text(-0.0425, 0.585 , 'Pathogenicity Threshold ↑', color='red', fontsize=6, va='center')
         ax_scatter.text(-0.135 , 0.564, '0.56', color='red', fontsize=7, va='center')
+        ax_scatter.text(0.54 , -0.06, '0.56', color='red', fontsize=7, va='center')
+        ax_scatter.text(0.575, 0.25 , 'Rank Pathogenicity Threshold ↑', color='red', fontsize=6, va='center', rotation = 270)
+
+
+    # Flip y-axis: more negative = more pathogenic → should be higher
+    if model == "ESM": ax_scatter.invert_yaxis()
 
     # Find optimal number of bins for histogram
     def optimal_bin_count(n):
@@ -204,7 +231,7 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
     num_bins = optimal_bin_count(n_points)
 
     # Histogram on the right — aligned with y-axis of scatter
-    ax_hist = fig.add_subplot(gs[1], sharey=ax_scatter)
+    ax_hist = fig.add_subplot(gs[1,1], sharey=ax_scatter)
     hist_values, bins, _ = ax_hist.hist(
         plot_df['Raw Score'], bins = num_bins, orientation='horizontal',
         color=scatter_color, alpha=0.6, edgecolor='black', linewidth=0.3)
@@ -219,6 +246,30 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
     ax_hist.tick_params(axis='y', labelleft=False)  # Hide y-axis ticks on histogram
     ax_hist.set_xlabel('Frequency', fontsize=8)
     ax_hist.grid(False)
+
+
+
+     # Histogram on the top — aligned with x-axis of scatter
+    ax_hist = fig.add_subplot(gs[0,0], sharex=ax_scatter)
+    hist_values, bins, _ = ax_hist.hist(
+        plot_df['Rank'], bins = num_bins, orientation='vertical',
+        color=scatter_color, alpha=0.6, edgecolor='black', linewidth=0.3)
+
+    # Only show ticks at 0 and max
+    #max_freq = max(hist_values)
+    #nice_max = round_up_nice(max_freq)
+    ax_hist.set_yticks([0, round(nice_max)])
+    ax_hist.set_yticklabels(['0', rf'$ {int(nice_max / 10 ** int(math.log10(nice_max)))} \times 10^{{{int(math.log10(nice_max))}}} $'], fontsize=8)
+
+    # Clean up histogram axis
+    ax_hist.tick_params(axis='x', labelbottom=False)  # Hide x-axis ticks on histogram
+    ax_hist.set_ylabel('Frequency', fontsize=8, labelpad=-8)
+    ax_hist.grid(False)
+
+
+
+
+
 
      # Save plot
     if save:

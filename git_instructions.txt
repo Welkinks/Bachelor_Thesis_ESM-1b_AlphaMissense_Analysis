@@ -1,0 +1,25 @@
+# After work or changes
+git status                              # See what changed
+git add .                               # Add all changed files (or specific files)
+git commit -m "Add function to plot X"  # Meaningful message
+git push                                # Push to GitHub
+
+
+Before Making It Public: Clean It Up a Bit
+Here’s a quick checklist before switching to public:
+
+🧹 Remove any secrets (API keys, personal data, .env files).
+
+📄 Add a README.md:
+Describe the project.
+Mention tools/libraries used.
+Show example plots or usage.
+
+🗂️ Include a .gitignore so you’re not pushing unnecessary files (e.g., .venv, .ipynb_checkpoints/).
+
+🧪 Optional: Add a requirements.txt or environment.yml so others can install dependencies.
+
+
+
+
+Select entire line with shift + command + right arrow
