@@ -45,6 +45,8 @@ MULTISPAN_PATH_CSV = "_statistics.csv"
 
 N_OUT_PROTEIN_ID = PROCESSED_DIR / "Human_N_Out_Proteome.csv"
 
+PROTEIN_IDS_CSV = PROCESSED_DIR / "Protein_IDs_Per_Experiment" / "intersection_protein_ids_to_be_ranked.csv"
+
 # === Expose paths via function ===
 def get_paths():
     return {
@@ -62,8 +64,9 @@ def get_paths():
         "am_csv_suffix": AM_PATH_CSV,
         "diff_csv_suffix": DIFF_PATH_CSV,
         "n_out_rank_csv_suffix": N_OUT_RANK_PATH_CSV,
-        "multispan_rank_csv_suffix": MULTISPAN_PATH_CSV,
-        "n_out_id": N_OUT_PROTEIN_ID
+        "multispan_rank_csv_suffix": MULTISPAN_PATH,
+        "protein_ids_intersection": PROTEIN_IDS_CSV,
+        "n_out_protein_id": N_OUT_PROTEIN_ID,
     }
 
 
@@ -81,3 +84,15 @@ def get_paths_protein(protein_id="P05067"):
         "multispan_rank_path": paths["multispan_rank"] / f"{protein_id}{paths['multispan_rank_csv_suffix']}",
         "protein_statistics_path": paths["processed"] / "Protein_Statistics" / f"{protein_id}_statistics.csv"
     }
+
+
+
+
+def get_aa_list():
+    return [
+        "A", "V", "L", "I", "M", "F", "W",  # Hydrophobic
+        "S", "T", "N", "Q", "Y", "C",      # Polar uncharged
+        "K", "R", "H",                     # Positively charged
+        "D", "E",                          # Negatively charged
+        "G", "P"                           # Special
+    ]
