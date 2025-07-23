@@ -200,7 +200,7 @@ def protein_statistics(store_pathway,
         raise ValueError("Invalid topology specified. Use 'singlespan', 'multispan', or None.")
 
     if dataset not in ["N_out", "Multispan", "DSSP"]:
-        raise ValueError("Invalid dataset specified. Use 'N_out', 'Multispan', or 'DSSP'.")
+        raise ValueError("Invalid dataset specified. Use 'N_out', 'Multispan', 'DSSP' or 'all_human'")
 
     # Load DSSP dataset
     with open(RAW_DIR / '0000DSSP_result_complete_dict.pkl', 'rb') as f:
@@ -215,7 +215,9 @@ def protein_statistics(store_pathway,
         protein_ids = data.keys()
         dssp_human_ids = PROCESSED_DIR / "Protein_IDs_Per_Experiment" / "DSSP_human_protein_ids.csv"
         protein_ids = set(protein_ids).intersection(set(pd.read_csv(dssp_human_ids, usecols=["entry"])['entry']))
-        
+    elif dataset == "all_human":
+        protein_ids = pd.read_csv(PROTEIN_IDS_CSV, usecols=["Protein_ID"])['Protein_ID'].tolist()
+
         
 
     # Special cases
