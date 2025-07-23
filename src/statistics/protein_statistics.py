@@ -199,7 +199,7 @@ def protein_statistics(store_pathway,
     if topology not in ["singlespan", "multispan", None]:
         raise ValueError("Invalid topology specified. Use 'singlespan', 'multispan', or None.")
 
-    if dataset not in ["N_out", "Multispan", "DSSP"]:
+    if dataset not in ["N_out", "Multispan", "DSSP", "all_human"]:
         raise ValueError("Invalid dataset specified. Use 'N_out', 'Multispan', 'DSSP' or 'all_human'")
 
     # Load DSSP dataset

@@ -10,7 +10,7 @@ from src.project_config import get_paths_protein, RAW_DIR, IMAGES_DIR, COLORS_CP
 # helper function for plot_pathogenicity()
 def _add_structured_legend(ax, highlight, model_labels=None, models="both",
                            span="singlespan", feature_labels=None, region_labels=None,
-                           legend_loc='lower left', anchor=(0.0, -0.01)):
+                           legend_loc='lower left', anchor=(0.0, -0.01), created_locally=False):
     """
     Add a structured legend to an axis, filtering by highlight regions.
 
@@ -39,8 +39,8 @@ def _add_structured_legend(ax, highlight, model_labels=None, models="both",
         feature_labels = [l for l in (feature_labels or ['Transmembrane', 'Juxtamembrane']) if l in highlight]
         region_labels  = [l for l in (region_labels  or ['Helix', 'Beta strand', 'Disordered']) if l in highlight]
     else:  # multispan
-        feature_labels = [l for l in (feature_labels or ['Transmembrane Helix', 'Disordered']) if l in highlight]
-     
+        
+        region_labels  = [l for l in (region_labels  or ['Helix', 'Beta strand', 'Disordered']) if l in highlight]
 
     ordered_labels = model_labels[:]
     if feature_labels:
@@ -57,7 +57,7 @@ def _add_structured_legend(ax, highlight, model_labels=None, models="both",
         loc=legend_loc,
         bbox_to_anchor=anchor if span == "singlespan" else (0.0, -0.05),
         frameon=False,
-        fontsize=7,
+        fontsize=7 if created_locally else 18,
         ncol=3 if span == "singlespan" else 2,
         columnspacing=1.2,
     )
@@ -285,11 +285,12 @@ def plot_pathogenicity(
     else:
         # In multispan avoid Juxtamembrane 
         all_highlights = {
-            'Beta strand':{'column':'Beta strand','color':'#f2b701','alpha':0.95,'shade_alpha':0.12,'position':'bottom'},
-            'Disordered':{'column':'Region_mask','color':'#2d86c9','alpha':0.95,'shade_alpha':0.12,'position':'bottom'},
-            'Transmembrane Helix':{'column':'Transmembrane_Helix_mask','color':'#00F89D','alpha':0.95,'shade_alpha':0.12,'position':'bottom'}
+            'Helix':{'column':HELIX_MASK,'color':COLORS_SECONDARY["BLUE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
+            'Beta strand':{'column':'Beta strand','color':COLORS_SECONDARY["PURPLE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
+            'Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
+            'Transmembrane':{'column':TRANSMEMBRANE,'color':COLORS_CPP["TRANS"],'alpha':1,'shade_alpha':0.0,'position':'bottom'}
         }
-        hl_regions = {k:all_highlights[k] for k in ["Transmembrane Helix", "Disordered"] if k in all_highlights}
+        hl_regions = {k:all_highlights[k] for k in (highlight or []) if k in all_highlights}
 
     # Initialize plot
     if fig is None or ax is None:
@@ -307,7 +308,7 @@ def plot_pathogenicity(
         created_locally = False
 
 
-    if rASA:
+    if rASA and created_locally:
         # Plot rASA as a line (or points) on its own axis
         ax_rasa.plot(df[x_col], df['rASA'], color='black', linewidth=0.6, rasterized=True)
         ax_rasa.set_ylabel('rASA', fontsize=8, labelpad=2, fontweight='bold')
@@ -340,7 +341,7 @@ def plot_pathogenicity(
 
     # y-ticks
     ax.set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])  
-    ax.tick_params(axis='y', labelsize=8 if created_locally else 14)  # Set y-tick label size
+    ax.tick_params(axis='y', labelsize=8 if created_locally else 20)  # Set y-tick label size
 
     # Set title if created locally and title allowed (not None)
     if created_locally and title is not None:
@@ -349,7 +350,7 @@ def plot_pathogenicity(
     # Plot curves and optional std
     for spec in curve_list:
         ycol, lbl, clr, sdcol = spec['y_col'], spec['label'], spec['color'], spec['std_col']
-        ax.plot(df[x_col], df[ycol], label=lbl, color=clr, linewidth=1.25)
+        ax.plot(df[x_col], df[ycol], label=lbl, color=clr, linewidth=1.25 if created_locally else 3, rasterized=True)
         if show_std and sdcol in df:
             y, err = df[ycol], df[sdcol]
             ax.fill_between(df[x_col], y-err, y+err, color=clr, alpha=0.2, zorder=0)
@@ -385,9 +386,11 @@ def plot_pathogenicity(
 
     ### Add legend ###
     if span == "singlespan":
-        _add_structured_legend(ax, highlight, models=curves, span=span)
+        _add_structured_legend(ax, highlight, models=curves, span=span, 
+                               created_locally=created_locally if created_locally else False)
     else: 
-        _add_structured_legend(ax, highlight, models=curves, span=span, feature_labels=['Transmembrane Helix', 'Disordered'])
+        _add_structured_legend(ax, highlight, models=curves, span=span,
+                               created_locally=created_locally if created_locally else False)
 
     if created_locally == False:
         # Restore x-ticks explicitly (important if ax is shared)

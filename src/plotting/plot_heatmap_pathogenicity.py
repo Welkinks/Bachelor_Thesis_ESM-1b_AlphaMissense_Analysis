@@ -11,7 +11,8 @@ from src.plotting.plot_pathogenicity import plot_pathogenicity
 
 
 def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves: str = "both", 
-                               smoothing_window: int = 5, save: bool = True, title: bool = True):
+                               smoothing_window: int = 5, save: bool = False, title: bool = True,
+                               rASA=False, secondary_str_version: str = "dssp"):
     """
     Plots a composite figure with heatmaps (AlphaMissense, ESM1b, Difference) and pathogenicity line plot.
     
@@ -30,12 +31,17 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
 
     # Create figure and gridspec layout
     fig = plt.figure(figsize=(len(data_diff.columns) / 15, 18))
-    gs = gridspec.GridSpec(nrows=7, ncols=1, height_ratios=[1, 0, 1, 0, 1, 0.1, 2])
+
+    if rASA:
+        gs = gridspec.GridSpec(nrows=9, ncols=1, height_ratios=[1, 0, 1, 0, 1, 0.1, 2, 0.075, 0.5])
+    else:
+        gs = gridspec.GridSpec(nrows=7, ncols=1, height_ratios=[1, 0, 1, 0, 1, 0.1, 2])
 
     ax_am   = fig.add_subplot(gs[0])
     ax_esm  = fig.add_subplot(gs[2], sharex=ax_am)
     ax_diff = fig.add_subplot(gs[4])
     ax_path = fig.add_subplot(gs[6])
+    ax_rasa = fig.add_subplot(gs[8], sharex=ax_path) if rASA else None
 
     # Plot heatmaps
     plot_heatmap(
@@ -56,16 +62,52 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
         smoothing_window=smoothing_window,
         show_std=False,
         ax=ax_path,
-        fig=fig
+        fig=fig,
+        secondary_str_version=secondary_str_version
     )
+
+
+    if rASA:
+        # Get paths and select the path and rankscore
+        paths = get_paths_protein(protein_id=protein_id)
+        data = paths["dssp_protein_path"]
+        df = pd.read_csv(data, index_col=0 if secondary_str_version == "uniprot" else None)
+        # Define x-axis column
+        x_col = 'residue_position'
+        if x_col not in df.columns:
+            raise KeyError(f"Column '{x_col}' missing in CSV.")
+
+
+        ax_rasa.tick_params(axis='x', labelsize=8)
+        # Plot rASA as a line (or points) on its own axis
+        ax_rasa.plot(df[x_col], df['rASA'], color='black', linewidth=2, rasterized=True)
+        ax_rasa.set_ylabel('rASA', fontsize=20, labelpad=2, fontweight='bold')
+        ax_rasa.set_ylim(0, 1.01)
+        ax_rasa.tick_params(axis='x', labelsize=30, rotation = 45)
+        ax_rasa.tick_params(axis='y', labelsize=20)
+        ax_rasa.set_yticks([0, 0.5, 1.0])
+        ax_rasa.tick_params(labelbottom=True, labelsize=18)
+        ax_rasa.grid(False)
+        ax_rasa.set_xlabel("Residue Position", fontsize=20, fontweight='bold')
+        
+        # Hide redundant x-axis on top plot
+        
+        ax_path.tick_params(labelbottom=False)
+        ax_path.set_xlabel("")
+
+
+
 
     # Y-axis labels
     ax_am.set_ylabel("AlphaMissense Rank", fontsize=20, fontweight='bold')
     ax_esm.set_ylabel("ESM-1b Rank", fontsize=20, fontweight='bold')
     ax_diff.set_ylabel("Difference Rank", fontsize=20, fontweight='bold')
 
-    # X-axis label only on bottom plot
-    ax_path.set_xlabel("Residue Position")
+
+    # X-axis label and x-ticks only on bottom plot
+    if not rASA: 
+        ax_path.set_xlabel("Residue Position",fontsize=20, fontweight='bold')
+
 
     # Title
     if title == True:
@@ -77,10 +119,12 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
     ax_am.tick_params(axis="x", which="both", length=0)
     
 
+    
+
     # Adjust layout
     plt.subplots_adjust(
         hspace=0.03,
-        bottom=0.05,
+        bottom=0.1,
         top=0.95,
         left=0.05,
         right=0.98
@@ -89,7 +133,7 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
     # Save plot
     if save:
         images_path.mkdir(parents=True, exist_ok=True)
-        output_path = images_path / f"combo_heatmap_pathogenicity_{protein_id}.png"
+        output_path = images_path / f"combo_heatmap_pathogenicity_{protein_id}_.png" 
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         print(f"Plot saved to {output_path}")
 
