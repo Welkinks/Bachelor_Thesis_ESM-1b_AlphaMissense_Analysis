@@ -1,7 +1,9 @@
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-from src.project_config import get_paths_protein
+from src.project_config import get_paths_protein, get_paths
+import os
+
 
 
 def plot_heatmap(
@@ -9,6 +11,7 @@ def plot_heatmap(
     axes=None,
     figsize=None,
     add_colorbars=True,
+    save=False
 ):
     """
     Unified heatmap plotting function that works for both standalone and embedded cases.
@@ -89,6 +92,14 @@ def plot_heatmap(
     # --- Layout ---
     if created_locally:
         plt.tight_layout()
+        if save:
+            images_path = get_paths()['images_path'] / '5.6.Combo_Heatmap_Average_Pathogenicity'
+            output_path = images_path / "heatmap.png"
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+
+            relative_output = os.path.relpath(output_path, start=get_paths()["project_root"])
+            print(f"✅ Heatmap saved to '{relative_output}'.")
+    
         plt.show()
 
     print(f"Maximum difference value: {max_diff}")

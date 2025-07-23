@@ -1,4 +1,4 @@
-from src.project_config import get_paths
+from src.project_config import get_paths, COLORS_MODELS, COLORS_SECONDARY
 import os
 import numpy as np
 import pandas as pd
@@ -6,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import math
+from matplotlib import rcParams
 
 
 
@@ -177,7 +178,7 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
 
 
     # Define colors for AM and ESM models
-    scatter_color = "#1b9e77" if model == "ESM" else '#dc153c'  # Colorblind-safe green = # ESM color '#29ab88'
+    scatter_color = COLORS_MODELS["ESM"] if model == "ESM" else COLORS_MODELS["AM"]  # Colorblind-safe green = # ESM color '#29ab88'
     # Slightly darker version of the main color
     
 
@@ -191,9 +192,21 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
         plot_df['Rank'], plot_df['Raw Score'],
         alpha=alpha, s=18, color=scatter_color)
     
-    ax_scatter.set_xlabel('Rank Score', fontsize=8)
-    ax_scatter.set_ylabel('Raw LLR Score' if model == "ESM" else "Raw Score", fontsize=8)
 
+    xlabel_text = (
+        r"$\bf{Rank\ Score}$" + "\n" + "Pathogenicity Increases →"
+        if model == "ESM"
+        else r"$\bf{Rank\ Score}$" + "\n" + "Pathogenicity Increases →"
+    )
+    ax_scatter.set_xlabel(xlabel_text, fontsize=8, multialignment='center')
+    # Set the ylabel with different styles for each line
+    ylabel_text = (
+        r"$\bf{Raw\ LLR\ Score}$" + "\n" + "Pathogenicity Increases →"
+        if model == "ESM"
+        else r"$\bf{Raw\ Score}$" + "\n" + "Pathogenicity Increases →"
+    )
+
+    ax_scatter.set_ylabel(ylabel_text, fontsize=8, multialignment='center')
     ax_text = fig.add_subplot(gs[0, 1])
     ax_text.axis('off')  # Hide all axes lines, ticks, etc.
 
@@ -223,21 +236,24 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
   
     
     if model == "ESM":
-        ax_scatter.axhline(y=-7.5, color='red', linestyle='--', linewidth=1, xmin=-0.1, xmax=0.48271)
-        ax_scatter.axvline(x=0.48271, color='red', linestyle='--', linewidth=1, ymin=0.0, ymax=0.480)
-        ax_scatter.text(-0.0425, -8.2, 'Pathogenicity Threshold ↑', color='red', fontsize=6, va='center')
-        ax_scatter.text(-0.130, -7.5, '-7.5', color='red', fontsize=7, va='center')
-        ax_scatter.text(0.45, 16.5, '0.483', color='red', fontsize=7, va='center')
-        ax_scatter.text(0.49, 4, 'Rank Pathogenicity Threshold ↑', color='red', fontsize=6, va='center', rotation = 270)
+        ax_scatter.axhline(y=-7.5, color=COLORS_SECONDARY["PURPLE"], linestyle='-', linewidth=1.5, xmin=-0.1, xmax=0.48)
+        ax_scatter.axvline(x=0.48271, color=COLORS_SECONDARY["PURPLE"], linestyle='-', linewidth=1.5, ymin=0.0, ymax=0.480)
+        ax_scatter.text(-0.0425, -8.2, 'Pathogenicity Threshold ↑', color=COLORS_SECONDARY["PURPLE"], fontsize=6, va='center')
+        ax_scatter.text(-0.130, -7.5, '-7.5', color=COLORS_SECONDARY["PURPLE"], fontsize=7, va='center')
+        ax_scatter.text(0.45, 16.5, '0.483', color=COLORS_SECONDARY["PURPLE"], fontsize=7, va='center')
+        ax_scatter.text(0.49, 4, 'Rank Pathogenicity Threshold ↑', color=COLORS_SECONDARY["PURPLE"], fontsize=6, va='center', rotation = 270)
 
     elif model == "AlphaMissense":
-        ax_scatter.axhline(y=0.564, color='red', linestyle='--', linewidth=1, xmin=-0.1, xmax=0.563)
-        ax_scatter.axvline(x=0.56548, color='red', linestyle='--', linewidth=1, ymin=0.0, ymax=0.55)
-        ax_scatter.text(-0.0425, 0.585 , 'Pathogenicity Threshold ↑', color='red', fontsize=6, va='center')
-        ax_scatter.text(-0.135 , 0.564, '0.56', color='red', fontsize=7, va='center')
-        ax_scatter.text(0.54 , -0.06, '0.56', color='red', fontsize=7, va='center')
-        ax_scatter.text(0.575, 0.25 , 'Rank Pathogenicity Threshold ↑', color='red', fontsize=6, va='center', rotation = 270)
-
+        ax_scatter.axhline(y=0.564, color=COLORS_SECONDARY["PURPLE"], linestyle='-', linewidth=1.5, xmin=-0.1, xmax=0.559)
+        ax_scatter.axvline(x=0.56548, color=COLORS_SECONDARY["PURPLE"], linestyle='-', linewidth=1.5, ymin=0.0, ymax=0.554)
+        ax_scatter.text(-0.0425, 0.585 , 'Pathogenicity Threshold ↑', color=COLORS_SECONDARY["PURPLE"], fontsize=6, va='center')
+        ax_scatter.text(-0.135 , 0.564, '0.56', color=COLORS_SECONDARY["PURPLE"], fontsize=7, va='center')
+        ax_scatter.text(0.54 , -0.06, '0.56', color=COLORS_SECONDARY["PURPLE"], fontsize=7, va='center')
+        ax_scatter.text(0.575, 0.25 , 'Rank Pathogenicity Threshold ↑', color=COLORS_SECONDARY["PURPLE"], fontsize=6, va='center', rotation = 270)
+        
+            
+            
+        
 
     # Flip y-axis: more negative = more pathogenic → should be higher
     if model == "ESM": ax_scatter.invert_yaxis()

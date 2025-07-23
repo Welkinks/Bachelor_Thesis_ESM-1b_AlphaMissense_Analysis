@@ -24,6 +24,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # === Define standard project paths ===
 DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
 IMAGES_DIR = RESULTS_DIR / "images"
@@ -44,8 +45,9 @@ MULTISPAN_PATH = PROCESSED_DIR / "Multispan_Statistics_Rank"
 MULTISPAN_PATH_CSV = "_statistics.csv"
 
 N_OUT_PROTEIN_ID = PROCESSED_DIR / "Human_N_Out_Proteome.csv"
-
 PROTEIN_IDS_CSV = PROCESSED_DIR / "Protein_IDs_Per_Experiment" / "intersection_protein_ids_to_be_ranked.csv"
+DSSP_PROTEINS_PATH = PROCESSED_DIR / "5.2.Protein_Statistics" / "DSSP_5800"
+
 
 # === Expose paths via function ===
 def get_paths():
@@ -64,9 +66,10 @@ def get_paths():
         "am_csv_suffix": AM_PATH_CSV,
         "diff_csv_suffix": DIFF_PATH_CSV,
         "n_out_rank_csv_suffix": N_OUT_RANK_PATH_CSV,
-        "multispan_rank_csv_suffix": MULTISPAN_PATH,
+        "multispan_rank_csv_suffix": MULTISPAN_PATH_CSV,
         "protein_ids_intersection": PROTEIN_IDS_CSV,
         "n_out_protein_id": N_OUT_PROTEIN_ID,
+        "dssp_proteins_path": DSSP_PROTEINS_PATH,
     }
 
 
@@ -82,9 +85,9 @@ def get_paths_protein(protein_id="P05067"):
         "difference_path": paths["difference_path"] / f"{protein_id}{paths['diff_csv_suffix']}",
         "n_out_rank_path": paths["n_out_rank"] / f"{protein_id}{paths['n_out_rank_csv_suffix']}",
         "multispan_rank_path": paths["multispan_rank"] / f"{protein_id}{paths['multispan_rank_csv_suffix']}",
-        "protein_statistics_path": paths["processed"] / "Protein_Statistics" / f"{protein_id}_statistics.csv"
+        "protein_statistics_path": paths["processed"] / "Protein_Statistics" / f"{protein_id}_statistics.csv",
+        "dssp_protein_path": paths["dssp_proteins_path"] / f"{protein_id}_statistics.csv",
     }
-
 
 
 
@@ -96,3 +99,23 @@ def get_aa_list():
         "D", "E",                          # Negatively charged
         "G", "P"                           # Special
     ]
+
+
+
+# --- Define Colors for the entire Project --- #
+# Models
+COLORS_MODELS = {
+    'AM': '#ab294c',
+    'ESM': '#29ab88',
+}
+# Secondary Colors
+COLORS_SECONDARY = {
+    'BLUE': '#c7eaf7',
+    'PURPLE': '#d5c7f7',
+    'PINK': '#f7c7e4',
+}
+# CCP Colors
+COLORS_CPP = {
+    'TRANS': '#00F89D',
+    'JUXTA': '#0000FF',
+}
