@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from src.project_config import get_paths, get_paths_protein
+from src.project_config import get_paths, get_paths_protein, COLORS_MODELS
 from src.plotting.plot_heatmap import plot_heatmap
 from src.plotting.plot_pathogenicity import plot_pathogenicity
+from matplotlib.patches import Rectangle
 
 
 def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves: str = "both", 
@@ -33,12 +34,13 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
     fig = plt.figure(figsize=(len(data_diff.columns) / 15, 18))
 
     if rASA:
-        gs = gridspec.GridSpec(nrows=9, ncols=1, height_ratios=[1, 0, 1, 0, 1, 0.1, 2, 0.075, 0.5])
+        gs = gridspec.GridSpec(nrows=9, ncols=1, height_ratios=[1, 0, 1, 0.075, 1, 0.1, 2, 0.075, 0.5])
     else:
         gs = gridspec.GridSpec(nrows=7, ncols=1, height_ratios=[1, 0, 1, 0, 1, 0.1, 2])
 
     ax_am   = fig.add_subplot(gs[0])
     ax_esm  = fig.add_subplot(gs[2], sharex=ax_am)
+    ax_clusters = fig.add_subplot(gs[3])
     ax_diff = fig.add_subplot(gs[4])
     ax_path = fig.add_subplot(gs[6])
     ax_rasa = fig.add_subplot(gs[8], sharex=ax_path) if rASA else None
@@ -49,7 +51,42 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
         axes=[ax_am, ax_esm, ax_diff],
         add_colorbars=True
     )
- 
+    
+    # Load cluster annotation data
+    try:
+        cluster_csv_path = get_paths()["clusters_path"] / f"{protein_id}_clusters.csv" 
+        cluster_df = pd.read_csv(cluster_csv_path)
+
+        # Plot each cluster region as a rectangle
+        for _, row in cluster_df.iterrows():
+            try:
+                start, end = row['range'].split('-')
+                start, end = int(start), int(end)
+            except:
+                continue
+
+            color = COLORS_MODELS['AM'] if row['more pathogenic'] == 'AlphaMissense' else COLORS_MODELS['ESM']
+            # Temporary debug: draw background line
+            ax_clusters.hlines(y=0.5, xmin=start, xmax=end, colors=color, linestyles="-", linewidth=10, rasterized=True)
+    except:
+        print(f"No cluster data found for {protein_id}. Skipping cluster annotation.")
+
+
+
+
+
+    ax_clusters.set_ylim(0, 1)
+    ax_clusters.set_xlim(0, len(data_diff.columns))
+    ax_clusters.set_yticks([])
+    ax_clusters.set_xticks([])
+    ax_clusters.set_facecolor("white")
+    ax_clusters.tick_params(axis="x", which="both", length=0)
+
+
+
+
+
+
 
     # Plot pathogenicity line plot
     plot_pathogenicity(
@@ -58,7 +95,7 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
         rank=True,
         span=span,
         method="mean",
-        highlight=["Helix", "Beta strand", "Transmembrane", "Juxtamembrane", "Disordered"],
+        highlight=["Helix", "Beta strand", "Transmembrane", "Juxtamembrane", "Coil; Bend; Disordered"],
         smoothing_window=smoothing_window,
         show_std=False,
         ax=ax_path,
@@ -99,9 +136,9 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
 
 
     # Y-axis labels
-    ax_am.set_ylabel("AlphaMissense Rank", fontsize=20, fontweight='bold')
-    ax_esm.set_ylabel("ESM-1b Rank", fontsize=20, fontweight='bold')
-    ax_diff.set_ylabel("Difference Rank", fontsize=20, fontweight='bold')
+    ax_am.set_ylabel("AlphaMissense\nRank Scores", fontsize=20, fontweight='bold')
+    ax_esm.set_ylabel("ESM-1b\nRank Scores", fontsize=20, fontweight='bold')
+    ax_diff.set_ylabel("Difference\nRank Scores", fontsize=20, fontweight='bold')
 
 
     # X-axis label and x-ticks only on bottom plot

@@ -37,10 +37,10 @@ def _add_structured_legend(ax, highlight, model_labels=None, models="both",
 
     if span == "singlespan":
         feature_labels = [l for l in (feature_labels or ['Transmembrane', 'Juxtamembrane']) if l in highlight]
-        region_labels  = [l for l in (region_labels  or ['Helix', 'Beta strand', 'Disordered']) if l in highlight]
+        region_labels  = [l for l in (region_labels  or ['Helix', 'Beta strand', 'Coil; Bend; Disordered']) if l in highlight]
     else:  # multispan
         
-        region_labels  = [l for l in (region_labels  or ['Helix', 'Beta strand', 'Disordered']) if l in highlight]
+        region_labels  = [l for l in (region_labels  or ['Helix', 'Beta strand', 'Coil; Bend; Disordered']) if l in highlight]
 
     ordered_labels = model_labels[:]
     if feature_labels:
@@ -207,34 +207,22 @@ def plot_pathogenicity(
 
         df['Beta strand'] = df['Beta strand'].fillna(0).eq(1)
         df[TRANSMEMBRANE] = df['Transmembrane'].astype(str).str.lower().str.startswith('helical')
-        df['Region_mask'] = df['Region'].astype(str).str.lower().eq('disordered')
+        df['Region_mask'] = df['Region'].astype(str).str.lower().eq('Disordered')
 
     elif secondary_str_version == "dssp":
         # Normalize DSSP codes "-" for missing values
-        dssp = df["2D_Structures"].fillna("-").astype(str)
+        dssp = df["2D_Structures"].astype(str)
 
         # DSSP to masks
-        df[HELIX_MASK] = dssp.isin(["H", "G", "I"])       # Helix-related
+        df[HELIX_MASK] = dssp.isin(["H", "G", "I", "P"])       # Helix-related
         df["Beta strand"] = dssp.isin(["E", "B"])         # Beta-sheet/strand
-        df["Region_mask"] = dssp.isin(["-", "C", "S", "T"])  # Coil/loop/disordered
+        df["Region_mask"] = dssp.isin(["-", "S", "T"])  # Coil/loop/disordered
 
         # For compatibility with highlight logic
         df[TRANSMEMBRANE] = df['Transmembrane'].astype(str).str.lower().str.startswith('helical')  # DSSP doesn't provide this
         df[JUXTAMEMBRANE] = df[JUXTAMEMBRANE] = pd.to_numeric(df['Juxtamembrane'], errors='coerce').fillna(0).eq(1)
 
-        """
-        structure_codes = {"H": "Alpha helix",
-                           "B": "Beta bridge",
-                           "E": "Strand",
-                           "G": "Helix-3",
-                           "I": "Helix-5",
-                           "T": "Turn",
-                           "S": "Bend"}
-
-            df["Turn"] = dssp == "T"
-            df["Bend"] = dssp == "S"
-            df["310 Helix"] = dssp == "G"
-        """
+       
 
 
 
@@ -276,7 +264,7 @@ def plot_pathogenicity(
         all_highlights = {
             'Helix':{'column':HELIX_MASK,'color':COLORS_SECONDARY["BLUE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Beta strand':{'column':'Beta strand','color':COLORS_SECONDARY["PURPLE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
-            'Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
+            'Coil; Bend; Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Transmembrane':{'column':TRANSMEMBRANE,'color':COLORS_CPP["TRANS"],'alpha':1,'shade_alpha':0.0,'position':'bottom'},
             'Juxtamembrane':{'column':JUXTAMEMBRANE,'color':COLORS_CPP["JUXTA"],'alpha':1,'shade_alpha':0.0,'position':'bottom'}
         }
@@ -287,7 +275,7 @@ def plot_pathogenicity(
         all_highlights = {
             'Helix':{'column':HELIX_MASK,'color':COLORS_SECONDARY["BLUE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Beta strand':{'column':'Beta strand','color':COLORS_SECONDARY["PURPLE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
-            'Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
+            'Coil; Bend; Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Transmembrane':{'column':TRANSMEMBRANE,'color':COLORS_CPP["TRANS"],'alpha':1,'shade_alpha':0.0,'position':'bottom'}
         }
         hl_regions = {k:all_highlights[k] for k in (highlight or []) if k in all_highlights}

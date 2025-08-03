@@ -291,8 +291,11 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
     # Only show ticks at 0 and max
     #max_freq = max(hist_values)
     #nice_max = round_up_nice(max_freq)
-    ax_hist.set_yticks([0, round(max_freq)])
-    ax_hist.set_yticklabels(['0', rf'$ {int(max_freq / 10 ** int(math.log10(max_freq)))} \times 10^{{{int(math.log10(max_freq))}}} $'], fontsize=8)
+    hist_max = round(max_freq) 
+    if model == "AlphaMissense" and sample_size == 2000:
+        hist_max = 500000
+    ax_hist.set_yticks([0, hist_max])
+    ax_hist.set_yticklabels(['0', rf'$ {int(hist_max / 10 ** int(math.log10(hist_max)))} \times 10^{{{int(math.log10(hist_max))}}} $'], fontsize=8)
 
     # Clean up histogram axis
     ax_hist.tick_params(axis='x', labelbottom=False)  # Hide x-axis ticks on histogram

@@ -46,7 +46,7 @@ MULTISPAN_PATH_CSV = "_statistics.csv"
 
 N_OUT_PROTEIN_ID = PROCESSED_DIR / "Human_N_Out_Proteome.csv"
 PROTEIN_IDS_CSV = PROCESSED_DIR / "Protein_IDs_Per_Experiment" / "intersection_protein_ids_to_be_ranked.csv"
-DSSP_PROTEINS_PATH = PROCESSED_DIR / "5.2.Protein_Statistics" / "DSSP_5800"
+DSSP_PROTEINS_PATH = PROCESSED_DIR / "5.2.Protein_Statistics" / "DSSP_ALL_HUMAN_PROTEOME"
 
 
 # === Expose paths via function ===
@@ -70,7 +70,9 @@ def get_paths():
         "protein_ids_intersection": PROTEIN_IDS_CSV,
         "n_out_protein_id": N_OUT_PROTEIN_ID,
         "dssp_proteins_path": DSSP_PROTEINS_PATH,
+        "clusters_path": PROCESSED_DIR / "6.3.Difference_Clusters"
     }
+
 
 
 # === Get paths for a specific protein ID ===
@@ -86,7 +88,7 @@ def get_paths_protein(protein_id="P05067"):
         "n_out_rank_path": paths["n_out_rank"] / f"{protein_id}{paths['n_out_rank_csv_suffix']}",
         "multispan_rank_path": paths["multispan_rank"] / f"{protein_id}{paths['multispan_rank_csv_suffix']}",
         "protein_statistics_path": paths["processed"] / "Protein_Statistics" / f"{protein_id}_statistics.csv",
-        "dssp_protein_path": paths["dssp_proteins_path"] / f"{protein_id}_statistics.csv",
+        "dssp_protein_path": paths["dssp_proteins_path"] / f"{protein_id}_statistics.csv"
     }
 
 
