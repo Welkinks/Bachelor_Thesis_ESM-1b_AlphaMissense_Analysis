@@ -125,7 +125,7 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
         ax_rasa.set_yticks([0, 0.5, 1.0])
         ax_rasa.tick_params(labelbottom=True, labelsize=18)
         ax_rasa.grid(False)
-        ax_rasa.set_xlabel("Residue Position", fontsize=20, fontweight='bold')
+        ax_rasa.set_xlabel("Residue Position", fontsize=36, fontweight='bold')
         
         # Hide redundant x-axis on top plot
         
@@ -143,7 +143,7 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
 
     # X-axis label and x-ticks only on bottom plot
     if not rASA: 
-        ax_path.set_xlabel("Residue Position",fontsize=20, fontweight='bold')
+        ax_path.set_xlabel("Residue Position",fontsize=36, fontweight='bold')
 
 
     # Title
@@ -171,7 +171,7 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
     if save:
         images_path.mkdir(parents=True, exist_ok=True)
         output_path = images_path / f"combo_heatmap_pathogenicity_{protein_id}_.png" 
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.savefig(output_path, dpi=100, bbox_inches='tight')
         print(f"Plot saved to {output_path}")
 
     plt.show()

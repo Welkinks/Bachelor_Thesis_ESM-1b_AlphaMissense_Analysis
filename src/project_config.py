@@ -47,6 +47,7 @@ MULTISPAN_PATH_CSV = "_statistics.csv"
 N_OUT_PROTEIN_ID = PROCESSED_DIR / "Human_N_Out_Proteome.csv"
 PROTEIN_IDS_CSV = PROCESSED_DIR / "Protein_IDs_Per_Experiment" / "intersection_protein_ids_to_be_ranked.csv"
 DSSP_PROTEINS_PATH = PROCESSED_DIR / "5.2.Protein_Statistics" / "DSSP_ALL_HUMAN_PROTEOME"
+MULTISPAN_PROTEIN_ID = RAW_DIR / "multipass.tsv"
 
 
 # === Expose paths via function ===
@@ -55,6 +56,7 @@ def get_paths():
         "project_root": PROJECT_ROOT,
         "data": DATA_DIR,
         "processed": PROCESSED_DIR,
+        "raw": RAW_DIR,
         "esm_path": ESM_PATH,
         "am_path": AM_PATH,
         "difference_path": DIFF_PATH,

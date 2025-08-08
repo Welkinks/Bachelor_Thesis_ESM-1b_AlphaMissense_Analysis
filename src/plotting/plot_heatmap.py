@@ -65,7 +65,7 @@ def plot_heatmap(
 
     # --- Difference Heatmap ---
     max_diff = max(abs(data_diff.max().max()), abs(data_diff.min().min()))
-    hm_diff = sns.heatmap(data_diff, ax=ax_diff, cmap="BrBG", vmin=-max_diff, vmax=max_diff, 
+    hm_diff = sns.heatmap(data_diff, ax=ax_diff, cmap="BrBG", vmin=-1, vmax = 1, #vmin=-max_diff, vmax=max_diff, 
                           center=0, cbar=add_colorbars and created_locally, 
                           cbar_kws={'shrink': 1, 'aspect': 5, 'pad': 0.01} if add_colorbars else None
     )

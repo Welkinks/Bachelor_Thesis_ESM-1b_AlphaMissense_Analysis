@@ -84,7 +84,8 @@ def plot_pathogenicity(
     title=None,
     save_path=None,
     fig=None,
-    ax=None
+    ax=None,
+    tmd_highlight=False,    # whether to highlight transmembrane regions
 ):
     """
     Generate a pathogenicity plot for a given protein, optionally highlighting structural regions.
@@ -221,7 +222,7 @@ def plot_pathogenicity(
         # For compatibility with highlight logic
         df[TRANSMEMBRANE] = df['Transmembrane'].astype(str).str.lower().str.startswith('helical')  # DSSP doesn't provide this
         df[JUXTAMEMBRANE] = df[JUXTAMEMBRANE] = pd.to_numeric(df['Juxtamembrane'], errors='coerce').fillna(0).eq(1)
-
+        #df['Transmembrane_Helix_mask'] = df[TRANSMEMBRANE]
        
 
 
@@ -265,8 +266,8 @@ def plot_pathogenicity(
             'Helix':{'column':HELIX_MASK,'color':COLORS_SECONDARY["BLUE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Beta strand':{'column':'Beta strand','color':COLORS_SECONDARY["PURPLE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Coil; Bend; Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
-            'Transmembrane':{'column':TRANSMEMBRANE,'color':COLORS_CPP["TRANS"],'alpha':1,'shade_alpha':0.0,'position':'bottom'},
-            'Juxtamembrane':{'column':JUXTAMEMBRANE,'color':COLORS_CPP["JUXTA"],'alpha':1,'shade_alpha':0.0,'position':'bottom'}
+            'Transmembrane':{'column':TRANSMEMBRANE,'color':COLORS_CPP["TRANS"],'alpha':1,'shade_alpha':0.2 if tmd_highlight else 0,'position':'bottom'},
+            'Juxtamembrane':{'column':JUXTAMEMBRANE,'color':COLORS_CPP["JUXTA"],'alpha':1,'shade_alpha':0.2 if tmd_highlight else 0,'position':'bottom'}
         }
         hl_regions = {k:all_highlights[k] for k in (highlight or []) if k in all_highlights}
 
@@ -277,6 +278,7 @@ def plot_pathogenicity(
             'Beta strand':{'column':'Beta strand','color':COLORS_SECONDARY["PURPLE"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Coil; Bend; Disordered':{'column':'Region_mask','color':COLORS_SECONDARY["PINK"],'alpha':1,'shade_alpha':0.4,'position':'bottom'},
             'Transmembrane':{'column':TRANSMEMBRANE,'color':COLORS_CPP["TRANS"],'alpha':1,'shade_alpha':0.0,'position':'bottom'}
+            #'Transmembrane Helix': {'column': "Transmembrane_Helix_mask", 'color': COLORS_CPP["TRANS"], 'alpha': 1, 'shade_alpha': 0.4, 'position': 'bottom'},
         }
         hl_regions = {k:all_highlights[k] for k in (highlight or []) if k in all_highlights}
 
@@ -305,7 +307,7 @@ def plot_pathogenicity(
         ax_rasa.tick_params(axis='y', labelsize=8)
         ax_rasa.set_yticks([0, 0.5, 1.0])
         ax_rasa.grid(False)
-        ax_rasa.set_xlabel("Residue Position", fontsize=20 if created_locally==False else 9, fontweight='bold')
+        ax_rasa.set_xlabel("Residue Position", fontsize=36 if created_locally==False else 15, fontweight='bold')
         
         # Hide redundant x-axis on top plot
         plt.setp(ax.get_xticklabels(), visible=False)
@@ -319,13 +321,13 @@ def plot_pathogenicity(
 
     # Set x-axis and y-axis labels and title
     if rASA == False:
-        ax.set_xlabel("Residue Position", fontsize=20 if created_locally==False else 9, fontweight='bold')
+        ax.set_xlabel("Residue Position", fontsize=36 if created_locally==False else 15, fontweight='bold')
 
     # set y-axis label 
-    ylabel_base = "Mean Predicted Pathogenicity Rank" if rank else "Mean Predicted Pathogenicity"
+    ylabel_base = "Mean Rank Pathogenicity" if rank else "Mean Predicted Pathogenicity"
     smoothing_info = f"\n(Smoothing: {smoothing_window})" if smoothing_window > 1 else ""
     ax.set_ylabel(f"{ylabel_base}{smoothing_info}",
-                  fontsize=20 if not created_locally else 9, fontweight='bold')
+                  fontsize=20 if not created_locally else 15, fontweight='bold')
 
     # y-ticks
     ax.set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])  
@@ -398,20 +400,21 @@ def plot_pathogenicity(
     ax.set_xticklabels(ax.get_xticks(), fontsize=18 if created_locally==False else 8)  # Set fontsize to desired value
 
     # Save settings
-    rankscore = "rank" if rank else "normalized"    # for file naming purposes
     if save_path:
-        if show_std:        
-            save_path_1 = os.path.join(IMAGES_DIR / "5.3.Visualization",
-                                        f"{protein_id}_{curves}_{rankscore}_{method}std_plot.png")
-        else:
-            save_path_1 = os.path.join(IMAGES_DIR / "5.3.Visualization",
-                                        f"{protein_id}_{curves}_{rankscore}_{method}plot.png")
+        images_path = IMAGES_DIR / "1.2.Mean_Pathogenicity"
+        images_path.mkdir(parents=True, exist_ok=True)
+
+        std_suffix = "std_" if show_std else ""
+        filename = f"{protein_id}_{curves}_{"rank" if rank else "normalized"}_{method}{std_suffix}{"_rASA" if rASA else ""}_plot.png"
+        save_path_1 = images_path / filename
+
+
 
     # --- Layout --- only if created here
     if created_locally:
-        #plt.tight_layout()
         fig.subplots_adjust(hspace=0.05, top=0.95, bottom=0.12, left=0.08, right=0.98)
         fig.savefig(save_path_1, dpi=dpi, bbox_inches='tight')  # High quality
+        print(f"Plot saved to {save_path_1}")
         plt.show()
 
     return fig, ax
