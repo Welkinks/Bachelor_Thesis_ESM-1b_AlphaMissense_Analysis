@@ -136,9 +136,9 @@ def plot_heatmap_pathogenicity(protein_id: str, span: str = "singlespan", curves
 
 
     # Y-axis labels
-    ax_am.set_ylabel("AlphaMissense\nRank Scores", fontsize=20, fontweight='bold')
-    ax_esm.set_ylabel("ESM-1b\nRank Scores", fontsize=20, fontweight='bold')
-    ax_diff.set_ylabel("Difference\nRank Scores", fontsize=20, fontweight='bold')
+    ax_am.set_ylabel("Alpha-\nMissense", fontsize=36, fontweight='bold')
+    ax_esm.set_ylabel("ESM-1b", fontsize=36, fontweight='bold')
+    ax_diff.set_ylabel("Difference", fontsize=36, fontweight='bold')
 
 
     # X-axis label and x-ticks only on bottom plot

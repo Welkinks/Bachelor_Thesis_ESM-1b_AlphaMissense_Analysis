@@ -324,10 +324,10 @@ def plot_pathogenicity(
         ax.set_xlabel("Residue Position", fontsize=36 if created_locally==False else 15, fontweight='bold')
 
     # set y-axis label 
-    ylabel_base = "Mean Rank Pathogenicity" if rank else "Mean Predicted Pathogenicity"
+    ylabel_base = "Mean Pathogenicity" if rank else "Mean Predicted Pathogenicity"
     smoothing_info = f"\n(Smoothing: {smoothing_window})" if smoothing_window > 1 else ""
     ax.set_ylabel(f"{ylabel_base}{smoothing_info}",
-                  fontsize=20 if not created_locally else 15, fontweight='bold')
+                  fontsize=36 if not created_locally else 15, fontweight='bold')
 
     # y-ticks
     ax.set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])  

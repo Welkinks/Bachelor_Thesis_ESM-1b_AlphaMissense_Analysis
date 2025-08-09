@@ -46,7 +46,9 @@ def compute_2D_statistics(protein_id, feature):
         protein_statistics.groupby("2D_Structures" if feature == "2D" else "Topological domain")
         .agg(
             AM_mean=("AM_mean", "mean"),
+            AM_std=("AM_mean", "std"),
             ESM_mean=("ESM_mean", "mean"),
+            ESM_std=("ESM_mean", "std"),
             count=("AM_mean", "count")  
         )
         .reset_index()
@@ -70,7 +72,9 @@ def compute_2D_statistics(protein_id, feature):
                 protein_statistics.groupby("Transmembrane")
                 .agg(
                     AM_mean=("AM_mean", "mean"),
+                    AM_std=("AM_mean", "std"),
                     ESM_mean=("ESM_mean", "mean"),
+                    ESM_std=("ESM_mean", "std"),
                     count=("AM_mean", "count")  
                 )
                 .reset_index()
@@ -83,7 +87,9 @@ def compute_2D_statistics(protein_id, feature):
         if not helical_row.empty:
             # Access specific values from the row
             am_mean = helical_row["AM_mean"].values[0]
+            am_std = helical_row["AM_std"].values[0]
             esm_mean = helical_row["ESM_mean"].values[0]
+            esm_std = helical_row["ESM_std"].values[0]
             count = helical_row["count"].values[0]
 
             # Assign these values to the statistics DataFrame
@@ -91,7 +97,9 @@ def compute_2D_statistics(protein_id, feature):
                 pd.DataFrame([{
                     "Topological domain": "Transmembrane",
                     "AM_mean": am_mean,
+                    "AM_std": am_std,
                     "ESM_mean": esm_mean,
+                    "ESM_std": esm_std,
                     "count": count,
                 }])],
                 ignore_index=True,
