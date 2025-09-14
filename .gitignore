@@ -32,6 +32,4 @@ data/raw/ALL_hum_isoforms_ESM1b_LLR/
 data/raw/AlphaMissense_aa_substitutions.tsv
 
 
-/results/
-
 *.log

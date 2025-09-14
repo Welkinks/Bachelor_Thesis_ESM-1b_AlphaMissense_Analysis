@@ -198,7 +198,7 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
         if model == "ESM"
         else r"$\bf{Rank\ Score}$" + "\n" + "Pathogenicity Increases →"
     )
-    ax_scatter.set_xlabel(xlabel_text, fontsize=8, multialignment='center')
+    ax_scatter.set_xlabel(xlabel_text, fontsize=16, multialignment='center')
     # Set the ylabel with different styles for each line
     ylabel_text = (
         r"$\bf{Raw\ LLR\ Score}$" + "\n" + "Pathogenicity Increases →"
@@ -206,7 +206,7 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
         else r"$\bf{Raw\ Score}$" + "\n" + "Pathogenicity Increases →"
     )
 
-    ax_scatter.set_ylabel(ylabel_text, fontsize=8, multialignment='center')
+    ax_scatter.set_ylabel(ylabel_text, fontsize=16, multialignment='center')
     ax_text = fig.add_subplot(gs[0, 1])
     ax_text.axis('off')  # Hide all axes lines, ticks, etc.
 
@@ -225,9 +225,9 @@ def plot_rank_dotplot(model, alpha=0.1, sample="human", sample_size=1000, save=F
     )
     ax_text.text(
         0.0, 0.45, subtitle_text,
-        fontsize=6, ha='left', va='top'
+        fontsize=8, ha='left', va='top'
     )
-    ax_text.text(0.0, 0.2, "Rank\nTransformation", fontsize=6., fontweight='bold', ha='left', va='top', )
+    
  
     
     ax_scatter.grid(True, linestyle='--', alpha=0.2)

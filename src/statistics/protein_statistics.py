@@ -203,7 +203,7 @@ def protein_statistics(store_pathway,
         raise ValueError("Invalid dataset specified. Use 'N_out', 'Multispan', 'DSSP' or 'all_human'")
 
     # Load DSSP dataset
-    with open(RAW_DIR / '0000DSSP_result_complete_dict.pkl', 'rb') as f:
+    with open(PROCESSED_DIR/ 'DSSP_HUMAN_PROTEOME.pkl', 'rb') as f:
         data = pickle.load(f)
 
     # Define protein IDs based on the dataset
